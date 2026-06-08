@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: talent-angels
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false          # you set this manually in Render dashboard
+      - key: PORT
+        value: 5000
+    healthCheckPath: /
+    autoDeploy: true

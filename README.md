@@ -398,7 +398,7 @@ Extender las taxonomías con vocabularios médicos estandarizados:
 
 ### Proyecto origen: Learning Tokens
 
-Este trabajo es una implementación derivada y extensión del proyecto **[Learning Tokens](https://github.com/hyperledger-labs/learning-tokens)**, desarrollado bajo el Programa de Mentorías de Hyperledger en la Linux Foundation.
+Este trabajo es una implementación derivada y extensión del proyecto **[Learning Tokens](https://github.com/hyperledger-labs/learning-tokens)**, desarrollado durante el Programa de Mentorías de Hyperledger en la Linux Foundation.
 
 **Autores del proyecto Learning Tokens original:**
 

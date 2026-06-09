@@ -1,4 +1,4 @@
-# skill-graph-cv-analyzer
+# cv-skill-graph
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11-blue)](https://python.org)

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>HealthSkill Graph</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/styles.css"/>
+</head>
+<body>
+
+<!-- ── HEADER ────────────────────────────────────────────────────────── -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">H+</div>
+      <div>
+        <div class="logo-text">HealthSkill <span>Graph</span></div>
+        <div class="logo-sub">ESCO · O*NET · SFIA · Learning Tokens</div>
+      </div>
+    </div>
+    <div class="header-badge">AI Demo · Linux Foundation 2026</div>
+  </div>
+</header>
+
+<!-- ── NAVEGACIÓN DE PESTAÑAS ─────────────────────────────────────────── -->
+<!-- 3 pestañas: Candidato (busca trabajo), Empleador (publica vacante), Match -->
+<div class="tabs-wrapper">
+  <div class="tabs-inner">
+    <button class="tab-btn active" onclick="switchTab('candidate', this)">
+      <span class="tab-icon">👤</span> Candidato
+    </button>
+    <button class="tab-btn" onclick="switchTab('employer', this)">
+      <span class="tab-icon">🏥</span> Empleador
+    </button>
+    <button class="tab-btn" onclick="switchTab('results', this)" id="tab-results-btn">
+      <span class="tab-icon">📊</span> Resultados
+      <span id="results-badge" class="badge badge-green hidden" style="margin-left:4px">Nuevo</span>
+    </button>
+  </div>
+</div>
+
+<!-- ================================================================
+     PESTAÑA 1: CANDIDATO
+     El profesional de salud sube su CV aquí.
+     Puede ver preview del documento, luego analizar.
+     ================================================================ -->
+<div id="tab-candidate" class="tab-content active">
+  <div class="page-wrap">
+
+    <div class="two-col" style="align-items: start;">
+
+      <!-- Panel izquierdo: subir CV -->
+      <div>
+        <div class="card">
+          <div class="card-title">
+            <span class="dot" style="background:var(--green)"></span>
+            Tu Currículum Vitae
+          </div>
+
+          <!-- Zona de drag & drop para el CV -->
+          <label class="upload-zone" id="cv-drop" for="cv-input">
+            <div class="upload-icon">📄</div>
+            <div class="upload-title">Arrastra tu CV aquí</div>
+            <div class="upload-hint">PDF o DOCX · máx 10 MB</div>
+            <div class="upload-chosen" id="cv-filename"></div>
+            <input type="file" id="cv-input" accept=".pdf,.doc,.docx"/>
+          </label>
+
+          <div style="margin-top:1rem; display:flex; gap:0.75rem; flex-wrap:wrap;">
+            <button class="btn btn-primary" id="preview-btn" disabled onclick="previewCV()">
+              👁 Ver CV
+            </button>
+            <button class="btn btn-primary" id="analyze-cv-btn" disabled onclick="analyzeFull()">
+              🔍 Analizar Competencias
+            </button>
+          </div>
+
+          <div id="cv-error" class="error-box hidden" style="margin-top:0.75rem"></div>
+        </div>
+
+        <!-- Preview del CV — aparece después de hacer clic en "Ver CV" -->
+        <div class="card hidden" id="cv-preview-card" style="margin-top:1rem">
+          <div class="card-title">
+            <span class="dot" style="background:var(--blue)"></span>
+            Vista previa del documento
+          </div>
+          <div id="cv-meta" style="margin-bottom:0.75rem"></div>
+          <!-- Aquí va el embed del PDF o el texto extraído -->
+          <div id="cv-preview-content"></div>
+        </div>
+      </div>
+
+      <!-- Panel derecho: instrucciones y estadísticas -->
+      <div>
+        <div class="card">
+          <div class="card-title">
+            <span class="dot" style="background:var(--purple)"></span>
+            Cómo funciona
+          </div>
+          <div style="display:flex; flex-direction:column; gap:1rem;">
+            <div style="display:flex; gap:0.75rem; align-items:flex-start;">
+              <div style="font-size:1.5rem; flex-shrink:0;">🤖</div>
+              <div>
+                <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.25rem;">Agente Locator</div>
+                <div style="font-size:0.8rem; color:var(--gray-600);">Lee tu CV y mapea semánticamente tus competencias a las taxonomías ESCO, O*NET y SFIA.</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:0.75rem; align-items:flex-start;">
+              <div style="font-size:1.5rem; flex-shrink:0;">🕸️</div>
+              <div>
+                <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.25rem;">Grafo de Conocimiento</div>
+                <div style="font-size:0.8rem; color:var(--gray-600);">Visualiza tus habilidades como nodos conectados. Las flechas muestran prerequisitos.</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:0.75rem; align-items:flex-start;">
+              <div style="font-size:1.5rem; flex-shrink:0;">🗺️</div>
+              <div>
+                <div style="font-weight:600; font-size:0.88rem; margin-bottom:0.25rem;">Agente Pathfinder</div>
+                <div style="font-size:0.8rem; color:var(--gray-600);">Calcula la ruta más corta en el grafo hacia las habilidades que te faltan.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Taxonomías usadas -->
+        <div class="card" style="margin-top:1rem">
+          <div class="card-title">
+            <span class="dot" style="background:var(--orange)"></span>
+            Taxonomías de referencia
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+            <span class="meta-pill">🇪🇺 ESCO</span>
+            <span class="meta-pill">🇺🇸 O*NET</span>
+            <span class="meta-pill">🌐 SFIA</span>
+            <span class="meta-pill">📊 BLS</span>
+            <span class="meta-pill">💡 Lightcast</span>
+          </div>
+          <p style="font-size:0.78rem; color:var(--gray-400); margin-top:0.75rem;">
+            Categorías: Fundamentos · Clínica · Cirugía · Investigación · Salud Digital · Gestión
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Loader del preview -->
+    <div id="preview-loader" class="hidden" style="text-align:center; padding:2rem;">
+      <div class="spinner" style="margin:0 auto 1rem"></div>
+      <p class="loader-text">Extrayendo texto del documento...</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ================================================================
+     PESTAÑA 2: EMPLEADOR
+     El empleador o reclutador sube la descripción del puesto.
+     Puede pegar texto directamente o subir un archivo.
+     ================================================================ -->
+<div id="tab-employer" class="tab-content">
+  <div class="page-wrap">
+
+    <div class="two-col" style="align-items:start;">
+
+      <!-- Panel izquierdo: subir JD -->
+      <div>
+        <div class="card">
+          <div class="card-title">
+            <span class="dot" style="background:var(--blue)"></span>
+            Descripción del Puesto
+          </div>
+
+          <label class="upload-zone jd" id="jd-drop" for="jd-input">
+            <div class="upload-icon">📋</div>
+            <div class="upload-title">Arrastra la descripción aquí</div>
+            <div class="upload-hint">PDF o DOCX · máx 10 MB</div>
+            <div class="upload-chosen jd" id="jd-filename"></div>
+            <input type="file" id="jd-input" accept=".pdf,.doc,.docx"/>
+          </label>
+
+          <div class="or-divider" style="margin:1rem 0">o pega el texto</div>
+
+          <textarea id="jd-text" rows="8"
+            placeholder="Pega aquí la descripción del puesto, requisitos de la vacante, o criterios para Investigador Principal en ensayo clínico..."></textarea>
+
+          <div style="margin-top:1rem;">
+            <button class="btn btn-blue" id="analyze-jd-btn" onclick="analyzeFull()" disabled>
+              🔍 Analizar y Comparar
+            </button>
+            <p style="font-size:0.72rem; color:var(--gray-400); margin-top:0.5rem;">
+              Requiere también un CV en la pestaña Candidato
+            </p>
+          </div>
+
+          <div id="jd-error" class="error-box hidden" style="margin-top:0.75rem"></div>
+        </div>
+      </div>
+
+      <!-- Panel derecho: guía para empleadores -->
+      <div>
+        <div class="card">
+          <div class="card-title">
+            <span class="dot" style="background:var(--blue)"></span>
+            ¿Qué obtienes como empleador?
+          </div>
+          <div style="display:flex; flex-direction:column; gap:0.875rem;">
+            <div style="padding:0.875rem; background:var(--gray-50); border-radius:var(--radius-sm); border:1px solid var(--gray-200);">
+              <div style="font-weight:600; font-size:0.85rem; margin-bottom:0.25rem;">📈 Porcentaje de match</div>
+              <div style="font-size:0.78rem; color:var(--gray-600);">Qué tanto cumple el candidato los requisitos del puesto, calculado sobre las taxonomías globales.</div>
+            </div>
+            <div style="padding:0.875rem; background:var(--gray-50); border-radius:var(--radius-sm); border:1px solid var(--gray-200);">
+              <div style="font-weight:600; font-size:0.85rem; margin-bottom:0.25rem;">✅ Habilidades verificadas</div>
+              <div style="font-size:0.78rem; color:var(--gray-600);">Listado de lo que el candidato sí tiene, qué le falta, y qué tiene de extra.</div>
+            </div>
+            <div style="padding:0.875rem; background:var(--gray-50); border-radius:var(--radius-sm); border:1px solid var(--gray-200);">
+              <div style="font-weight:600; font-size:0.85rem; margin-bottom:0.25rem;">🗺️ Plan de desarrollo</div>
+              <div style="font-size:0.78rem; color:var(--gray-600);">Si contratas a alguien con brechas, obtienes un plan concreto para cerrarlas (ENARM, CONACEM, etc.).</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:1rem">
+          <div class="card-title">
+            <span class="dot" style="background:var(--red)"></span>
+            Puestos de referencia (O*NET)
+          </div>
+          <div style="display:flex; flex-direction:column; gap:0.35rem;">
+            <div style="font-size:0.78rem; padding:0.4rem 0.6rem; background:var(--gray-50); border-radius:4px;">29-1216.00 · General Practitioner</div>
+            <div style="font-size:0.78rem; padding:0.4rem 0.6rem; background:var(--gray-50); border-radius:4px;">29-1067.00 · Surgeon</div>
+            <div style="font-size:0.78rem; padding:0.4rem 0.6rem; background:var(--gray-50); border-radius:4px;">29-1228.00 · ICU Specialist</div>
+            <div style="font-size:0.78rem; padding:0.4rem 0.6rem; background:var(--gray-50); border-radius:4px;">29-1071.00 · Clinical Researcher / PI</div>
+            <div style="font-size:0.78rem; padding:0.4rem 0.6rem; background:var(--gray-50); border-radius:4px;">29-1299.02 · Digital Health Specialist</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- ================================================================
+     PESTAÑA 3: RESULTADOS
+     Aparece después del análisis. Muestra todo: match, grafo,
+     rutas de aprendizaje y plan de desarrollo.
+     ================================================================ -->
+<div id="tab-results" class="tab-content">
+  <div class="page-wrap">
+
+    <!-- Estado vacío — antes de analizar -->
+    <div id="results-empty" class="card" style="text-align:center; padding:3rem;">
+      <div style="font-size:3rem; margin-bottom:1rem;">📊</div>
+      <div style="font-weight:600; font-size:1rem; margin-bottom:0.5rem;">Aún no hay resultados</div>
+      <div style="font-size:0.85rem; color:var(--gray-400); margin-bottom:1.5rem;">Sube un CV en la pestaña Candidato y analiza para ver los resultados aquí.</div>
+      <button class="btn btn-primary" onclick="switchTabByName('candidate')">Ir a Candidato →</button>
+    </div>
+
+    <!-- Loader del análisis principal -->
+    <div id="loader" class="hidden">
+      <div class="spinner"></div>
+      <p class="loader-text" id="loader-msg">Analizando competencias...</p>
+      <p class="loader-sub">Esto toma 15–25 segundos. Claude está leyendo el documento.</p>
+    </div>
+
+    <!-- Contenedor de resultados reales — aparece después del análisis -->
+    <div id="results-content" class="hidden results-section">
+
+      <!-- MATCH BANNER — solo si hay JD -->
+      <div id="match-banner" class="match-banner hidden">
+        <div>
+          <div class="match-pct-big" id="match-pct-val">—</div>
+          <div class="match-pct-label">Match</div>
+        </div>
+        <div class="match-bar-wrap">
+          <div class="match-bar-track">
+            <div class="match-bar-fill" id="match-bar"></div>
+          </div>
+          <div class="match-chips" id="match-chips"></div>
+        </div>
+      </div>
+
+      <!-- STATS RÁPIDAS -->
+      <div id="stats-row" class="three-col"></div>
+
+      <!-- RESÚMENES -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--green)"></span>Perfil del Candidato</div>
+          <p id="res-cv-summary" style="font-size:0.88rem; color:var(--gray-600); line-height:1.7;"></p>
+        </div>
+        <div class="card" id="jd-summary-card" style="display:none">
+          <div class="card-title"><span class="dot" style="background:var(--blue)"></span>Perfil del Puesto</div>
+          <p id="res-jd-summary" style="font-size:0.88rem; color:var(--gray-600); line-height:1.7;"></p>
+        </div>
+      </div>
+
+      <!-- HABILIDADES IDENTIFICADAS Y BRECHAS -->
+      <div class="two-col">
+        <div class="card">
+          <div class="card-title">
+            <span class="dot" style="background:var(--green)"></span>
+            Habilidades en el CV
+            <span class="badge badge-green" id="cv-skills-count"></span>
+          </div>
+          <ul id="res-cv-skills" class="skill-list"></ul>
+          <!-- Habilidades no mapeadas en la taxonomía -->
+          <div id="unmapped-box" class="hidden" style="margin-top:1rem; padding:0.75rem; background:var(--gray-50); border:1px solid var(--gray-200); border-radius:var(--radius-sm);">
+            <div style="font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--gray-400); margin-bottom:0.35rem;">Mencionadas (fuera de taxonomía)</div>
+            <p id="unmapped-text" style="font-size:0.78rem; color:var(--gray-500);"></p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" id="gap-title">
+            <span class="dot" style="background:var(--orange)"></span>
+            Competencias a Desarrollar
+            <span class="badge badge-orange" id="gap-count"></span>
+          </div>
+          <ul id="res-gaps" class="skill-list"></ul>
+        </div>
+      </div>
+
+      <!-- GRAFO DE CONOCIMIENTO -->
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Grafo de Conocimiento Médico</div>
+        <div class="graph-legend" id="graph-legend"></div>
+        <div class="graph-wrap"><svg id="graph-svg"></svg></div>
+        <p class="graph-note">Nodos = competencias clínicas · Flechas = relaciones de prerequisito · Hover para detalles</p>
+      </div>
+
+      <!-- RUTAS DE APRENDIZAJE -->
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--orange)"></span>Rutas de Aprendizaje (Pathfinder)</div>
+        <div id="res-paths"></div>
+      </div>
+
+      <!-- PLAN DE DESARROLLO -->
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--blue)"></span>Plan de Desarrollo Personalizado</div>
+        <div id="res-plan" class="plan-text"></div>
+      </div>
+
+      <!-- Botón para resetear -->
+      <div style="text-align:center; padding:1rem;">
+        <button class="btn btn-outline" onclick="resetAll()">← Analizar otro perfil</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ──────────────────────────────────────────────────────────── -->
+<footer>
+  <p>HealthSkill Graph · Open Source · <a href="https://github.com/LF-Decentralized-Trust-Mentorships/mentorship-program/issues/80" target="_blank">Learning Tokens · Linux Foundation 2026</a></p>
+  <p class="footer-credit">Concepto original Learning Tokens: Alfonso Govela, Tanjin Alam, Diana Barrero Zalles, Jackson Ross · Hyperledger Mentorship 2023</p>
+</footer>
+
+<!-- ================================================================
+     JAVASCRIPT
+     Todo embebido aquí. Si vas a dividirlo en archivos después,
+     separa: tabs.js, upload.js, graph.js, results.js
+     ================================================================ -->
+
+<script src="/app.js"></script>
+</body>
+</html>

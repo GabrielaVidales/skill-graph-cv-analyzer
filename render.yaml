@@ -6,7 +6,7 @@ services:
     plan: free
     envVars:
       - key: ANTHROPIC_API_KEY
-        sync: false
+        sync: false   # <-- la pones manualmente en el dashboard de Render
       - key: PORT
         value: 5000
     healthCheckPath: /
